@@ -1,4 +1,4 @@
-package sideproject.petmeeting.member.dto;
+package sideproject.petmeeting.member.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;
