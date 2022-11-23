@@ -26,6 +26,7 @@ import sideproject.petmeeting.member.repository.MemberRepository;
 import sideproject.petmeeting.member.service.MemberService;
 import sideproject.petmeeting.member.validator.MemberValidator;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
