@@ -6,7 +6,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class MemberUpdateRequest {
-    private String originEmail;
     private String nickname;
     private String password;
     private String email;
