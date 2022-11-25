@@ -27,4 +27,7 @@ public class PostResponseDto {
         this.numHeart = post.getNumHeart();
 
     }
+
+    public PostResponseDto(Long id) {
+    }
 }

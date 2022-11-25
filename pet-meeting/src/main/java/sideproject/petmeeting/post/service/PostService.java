@@ -16,8 +16,6 @@ import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -32,7 +30,7 @@ public class PostService {
      */
     @Transactional
     public Post createPost(PostRequestDto postRequestDto, MultipartFile image) throws IOException {
-        String imageUrl = s3Uploader.upload(image, "/post/imgae");
+        String imageUrl = s3Uploader.upload(image, "/post/image");
         Post post = new Post(postRequestDto, imageUrl);
         postRepository.save(post);
 
@@ -79,13 +77,10 @@ public class PostService {
         );
 
         String imageUrl = post.getImageUrl();
-        String postImage = "";
-        List<String> imgPaths = null;
 
         // 이미지 존재 시 삭제 후 업로드
         if (imageUrl != null) {
-            String deleteUrl = imageUrl.substring(imageUrl.indexOf("post/image"));
-            s3Uploader.deleteImage(deleteUrl);
+            s3Uploader.deleteImage(imageUrl);
         }
 
         imageUrl = s3Uploader.upload(image, "/post/image");
@@ -108,23 +103,13 @@ public class PostService {
         );
 
         String imageUrl = post.getImageUrl();
+
         if (imageUrl != null) {
-            String deleteUrl = imageUrl.substring(imageUrl.indexOf("post/image"));
-            s3Uploader.deleteImage(deleteUrl);
+            s3Uploader.deleteImage(imageUrl);
         }
 
         postRepository.deleteById(postId);
 
-
-   }
-
-
-
-
-
-
-
-
-
+    }
 
 }

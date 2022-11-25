@@ -36,7 +36,7 @@ public class Post extends Timestamped {
     private String content;
 
     @NotEmpty
-    @Size(min = 2, max = 500)
+    @Size(max = 2000)
     private String imageUrl;
 
     @ColumnDefault("0")

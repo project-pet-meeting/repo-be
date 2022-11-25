@@ -11,10 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import sideproject.petmeeting.common.Response;
+import sideproject.petmeeting.common.ResponseResource;
 import sideproject.petmeeting.common.StatusEnum;
-import sideproject.petmeeting.common.exception.BusinessException;
 import sideproject.petmeeting.post.domain.Post;
 import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
@@ -23,9 +22,9 @@ import sideproject.petmeeting.post.service.PostService;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 
 import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,25 +40,28 @@ public class PostController {
      */
     @PostMapping("/post")
     public ResponseEntity createPost(@RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
-                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image,
+                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image, // @valid 객체 검증 수행
                                      Errors errors, HttpServletResponse httpServletResponse) throws IOException {
-//        Response response = new Response();
         HttpHeaders headers = new HttpHeaders();
         if (errors.hasErrors()) {
             Response response = new Response(StatusEnum.BAD_REQUEST, "다시 시도해 주세요", errors);
-//            response.setStatus(StatusEnum.BAD_REQUEST);
-//            response.setMessage("다시 시도해 주세요");
-//            response.setData(errors);
+
             return new ResponseEntity<>(response, headers, HttpStatus.BAD_REQUEST);
         }
 
         Post post = postService.createPost(postRequestDto, image);
-//        response.setStatus(StatusEnum.BAD_REQUEST);
-//        response.setMessage("게시글 작성 성공");
-//        response.setData(post);
-        Response response = new Response(StatusEnum.CREATED, "게시글 작성 성공", post);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        PostResponseDto postResponseDto = new PostResponseDto(post);
+
+        ResponseResource responseResource = new ResponseResource(postResponseDto);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+        responseResource.add(linkTo(PostController.class).slash(post.getId()).withRel("post-get"));
+        responseResource.add(linkTo(PostController.class).slash(post.getId()).withRel("post-edit"));
+        responseResource.add(linkTo(PostController.class).slash(post.getId()).withRel("post-delete"));
+
+        Response response = new Response(StatusEnum.CREATED, "게시글 작성 성공", responseResource);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
@@ -80,7 +82,14 @@ public class PostController {
     @GetMapping("/post/{postId}")
     public ResponseEntity getPost(@PathVariable Long postId) {
         Post post = postService.getPost(postId);
-        Response response = new Response(StatusEnum.CREATED, "//statusEnum 수정하기//게시글 조회 성공", post);
+
+        PostResponseDto postResponseDto = new PostResponseDto(post);
+
+        ResponseResource responseResource = new ResponseResource(postResponseDto);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+
+        Response response = new Response(StatusEnum.OK, "게시글 조회 성공", responseResource);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -90,11 +99,19 @@ public class PostController {
      * @return
      */
     @PutMapping("/post/{postId}")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long postId,
-                                                      @RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
-                                                      @RequestPart(value = "image" ,required = false) @Valid MultipartFile image) throws IOException {
+    public ResponseEntity updatePost(@PathVariable Long postId,
+                                     @RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
+                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image) throws IOException {
         Post post = postService.updatePost(postId, postRequestDto, image);
-        return ResponseEntity.ok(new PostResponseDto(post));
+
+        PostResponseDto postResponseDto = new PostResponseDto(post);
+
+        ResponseResource responseResource = new ResponseResource(postResponseDto);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+
+        Response response = new Response(StatusEnum.OK, "게시글 수정 성공", responseResource);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -105,12 +122,13 @@ public class PostController {
     @DeleteMapping( "/post/{postId}")
     public ResponseEntity deletePost(@PathVariable Long postId) throws IOException {
         postService.postDelete(postId);
-        return ResponseEntity.ok("게시물 삭제 성공");
+        ResponseResource responseResource = new ResponseResource(null);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+
+        Response response = new Response(StatusEnum.OK, "게시글 삭제 성공", responseResource);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-
-
 
 
 }
