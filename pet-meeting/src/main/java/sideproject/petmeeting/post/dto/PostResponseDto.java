@@ -28,6 +28,5 @@ public class PostResponseDto {
 
     }
 
-    public PostResponseDto(Long id) {
-    }
+
 }

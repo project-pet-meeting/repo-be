@@ -42,18 +42,6 @@ public class Post extends Timestamped {
     @ColumnDefault("0")
     private Integer numHeart;
 
-    /**
-     *
-     * @param postRequestDto
-     * @param imageUrl
-     */
-    public Post(PostRequestDto postRequestDto, String imageUrl) {
-        this.category = postRequestDto.getCategory();
-        this.title = postRequestDto.getTitle();
-        this.content = postRequestDto.getContent();
-        this.imageUrl = imageUrl;
-    }
-
 
     /**
      * 게시글 수정

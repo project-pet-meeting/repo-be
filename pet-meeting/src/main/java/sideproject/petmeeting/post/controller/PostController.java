@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -19,7 +18,6 @@ import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
 import sideproject.petmeeting.post.service.PostService;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -41,12 +39,12 @@ public class PostController {
     @PostMapping("/post")
     public ResponseEntity createPost(@RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
                                      @RequestPart(value = "image" ,required = false) @Valid MultipartFile image, // @valid 객체 검증 수행
-                                     Errors errors, HttpServletResponse httpServletResponse) throws IOException {
-        HttpHeaders headers = new HttpHeaders();
+                                     Errors errors) throws IOException {
+
         if (errors.hasErrors()) {
             Response response = new Response(StatusEnum.BAD_REQUEST, "다시 시도해 주세요", errors);
 
-            return new ResponseEntity<>(response, headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         Post post = postService.createPost(postRequestDto, image);

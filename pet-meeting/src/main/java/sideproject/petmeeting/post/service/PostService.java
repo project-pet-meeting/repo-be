@@ -31,10 +31,16 @@ public class PostService {
     @Transactional
     public Post createPost(PostRequestDto postRequestDto, MultipartFile image) throws IOException {
         String imageUrl = s3Uploader.upload(image, "/post/image");
-        Post post = new Post(postRequestDto, imageUrl);
-        postRepository.save(post);
 
-        return post;
+        Post post = Post.builder()
+                .category(postRequestDto.getCategory())
+                .title(postRequestDto.getTitle())
+                .content(postRequestDto.getContent())
+                .imageUrl(imageUrl)
+                .build();
+
+        return postRepository.save(post);
+
     }
 
 
@@ -66,7 +72,7 @@ public class PostService {
      * 게시글 수정
      * @param postId : 수정할 게시글 id
      * @param postRequestDto : 수정할 게시글
-     * @param image
+     * @param image : 수정할 이미지 파일
      * @return
      * @throws IOException
      */
