@@ -40,6 +40,7 @@ import static sideproject.petmeeting.common.StatusEnum.CREATED;
 @Controller
 @RequestMapping(value = "/api/member", produces = HAL_JSON_VALUE)
 @AllArgsConstructor
+@RestController
 public class MemberController {
 
     //== Dependency Injection ==//
