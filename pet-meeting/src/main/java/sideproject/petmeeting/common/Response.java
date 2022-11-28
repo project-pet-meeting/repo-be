@@ -1,5 +1,6 @@
 package sideproject.petmeeting.common;
 
+
 import lombok.Data;
 
 @Data
