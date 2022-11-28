@@ -32,94 +32,94 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(errorCode.getStatusCode()));
     }
 
-    /**
-     * @Valid 유효성 체크에 통과하지 못하면 MethodArgumentNotValidException 발생
-     * @param e
-     * @return
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("handleMethodArgumentNotValidException", e);
-        final ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getBindingResult());
-        // Of 메서드:Null 값을 입력 받을 시 NullPointerException
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Handler 에서 예외처리 되지 않은 Exception 처리
-     * @param e
-     * @return
-     */
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("handleEntityNotFoundException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
-
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(IOException.class)
-    protected ResponseEntity<ErrorResponse> handleIOException(IOException e) {
-        log.error("handleIOException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE);
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * RequestPart 데이터가 없을 시 발생하는 에러 예외 처리
-     */
-    @ExceptionHandler(MissingServletRequestPartException.class)
-    protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
-        log.error("handleMissingServletRequestPartException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * request parameter 가 없을 시 발생하는 에러 예외 처리
-     */
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        log.error("handleMissingServletRequestParameterException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.HANDLE_ACCESS_DENIED);
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * 이미지 파일 업로드 용량 초과 시 발생하는 에러 예외 처리
-     */
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    protected ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
-        log.error("handleMaxUploadSizeExceededException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.FILE_SIZE_EXCEED);
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * 지원하지 않은 HTTP method 호출 시 발생하는 에러 예외 처리
-     */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        log.error("handleHttpRequestMethodNotSupportedException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
-
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
-    }
-
-    /**
-     * 지원하지 않은 Content Type 으로 호출 시 발생하는 에러 예외 처리
-     */
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
-        log.error("handleHttpRequestMethodNotSupportedException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_TYPE_VALUE, e.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+//    /**
+//     * @Valid 유효성 체크에 통과하지 못하면 MethodArgumentNotValidException 발생
+//     * @param e
+//     * @return
+//     */
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+//        log.error("handleMethodArgumentNotValidException", e);
+//        final ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getBindingResult());
+//        // Of 메서드:Null 값을 입력 받을 시 NullPointerException
+//        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    /**
+//     * Handler 에서 예외처리 되지 않은 Exception 처리
+//     * @param e
+//     * @return
+//     */
+//    @ExceptionHandler(Exception.class)
+//    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+//        log.error("handleEntityNotFoundException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE);
+//
+//        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+//
+//    @ExceptionHandler(IOException.class)
+//    protected ResponseEntity<ErrorResponse> handleIOException(IOException e) {
+//        log.error("handleIOException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE);
+//
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    /**
+//     * RequestPart 데이터가 없을 시 발생하는 에러 예외 처리
+//     */
+//    @ExceptionHandler(MissingServletRequestPartException.class)
+//    protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+//        log.error("handleMissingServletRequestPartException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getMessage());
+//
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    /**
+//     * request parameter 가 없을 시 발생하는 에러 예외 처리
+//     */
+//    @ExceptionHandler(MissingServletRequestParameterException.class)
+//    protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+//        log.error("handleMissingServletRequestParameterException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.HANDLE_ACCESS_DENIED);
+//
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    /**
+//     * 이미지 파일 업로드 용량 초과 시 발생하는 에러 예외 처리
+//     */
+//    @ExceptionHandler(MaxUploadSizeExceededException.class)
+//    protected ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+//        log.error("handleMaxUploadSizeExceededException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.FILE_SIZE_EXCEED);
+//
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    /**
+//     * 지원하지 않은 HTTP method 호출 시 발생하는 에러 예외 처리
+//     */
+//    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+//    protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+//        log.error("handleHttpRequestMethodNotSupportedException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
+//
+//        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+//    }
+//
+//    /**
+//     * 지원하지 않은 Content Type 으로 호출 시 발생하는 에러 예외 처리
+//     */
+//    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+//    protected ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+//        log.error("handleHttpRequestMethodNotSupportedException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_TYPE_VALUE, e.getMessage());
+//
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//    }
 
 
 //    /**
