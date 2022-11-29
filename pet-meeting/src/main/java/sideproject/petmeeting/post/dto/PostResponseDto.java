@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sideproject.petmeeting.post.domain.Post;
+import org.hibernate.annotations.ColumnDefault;
+import sideproject.petmeeting.post.domain.Category;
 
 @Builder
 @Getter
@@ -12,21 +13,11 @@ import sideproject.petmeeting.post.domain.Post;
 @NoArgsConstructor
 public class PostResponseDto {
     private Long id;
-    private String category;
+    private Category category;
     private String title;
     private String content;
     private String imageUrl;
+    @ColumnDefault("0")
     private Integer numHeart;
-
-    public PostResponseDto(Post post) {
-        this.id = post.getId();
-        this.category = post.getCategory();
-        this.title = post.getTitle();
-        this.content = post.getContent();
-        this.imageUrl = post.getImageUrl();
-        this.numHeart = post.getNumHeart();
-
-    }
-
 
 }
