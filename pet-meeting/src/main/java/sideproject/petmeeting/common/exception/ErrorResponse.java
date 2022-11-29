@@ -1,9 +1,9 @@
 package sideproject.petmeeting.common.exception;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.validation.BindingResult;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,15 +11,19 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
 
-    private int statusCode;
+    private int status;
     private String message;
     private String code;
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<FieldError> errors;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String detailMessage;
 
 
 
     private ErrorResponse(final ErrorCode code, final List<FieldError> errors) {
-        this.statusCode = code.getStatusCode();
+        this.status = code.getStatus();
         this.message = code.getMessage();
         this.code = code.getCode();
         this.errors = errors;
@@ -27,18 +31,16 @@ public class ErrorResponse {
     }
 
     private ErrorResponse(final ErrorCode code) {
-        this.statusCode = code.getStatusCode();
+        this.status = code.getStatus();
         this.message = code.getMessage();
         this.code = code.getCode();
-        this.errors = new ArrayList<>();
-
     }
 
     public ErrorResponse(final ErrorCode code, final String message) {
-        this.statusCode = code.getStatusCode();
-        this.message = message;
+        this.status = code.getStatus();
+        this.message = code.getMessage();
         this.code = code.getCode();
-        this.errors = new ArrayList<>();
+        this.detailMessage = message;
 
     }
 
