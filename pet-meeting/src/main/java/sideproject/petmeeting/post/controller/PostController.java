@@ -7,16 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sideproject.petmeeting.common.Response;
 import sideproject.petmeeting.common.ResponseResource;
 import sideproject.petmeeting.common.StatusEnum;
+
 import sideproject.petmeeting.post.domain.Post;
 import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
 import sideproject.petmeeting.post.service.PostService;
+import sideproject.petmeeting.security.UserDetailsImpl;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -37,8 +40,9 @@ public class PostController {
      * @return
      */
     @PostMapping("/post")
-    public ResponseEntity createPost(@RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
-                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image, // @valid 객체 검증 수행
+    public ResponseEntity createPost(@RequestPart(value = "data") @Valid PostRequestDto postRequestDto, // @valid 객체 검증 수행
+                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image,
+                                     @AuthenticationPrincipal UserDetailsImpl userDetails,
                                      Errors errors) throws IOException {
 
         if (errors.hasErrors()) {
@@ -47,9 +51,16 @@ public class PostController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        Post post = postService.createPost(postRequestDto, image);
+        Post post = postService.createPost(postRequestDto, image, userDetails.getMember());
 
-        PostResponseDto postResponseDto = new PostResponseDto(post);
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .id(post.getId())
+                .category(post.getCategory())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .numHeart(post.getNumHeart())
+                .build();
 
         ResponseResource responseResource = new ResponseResource(postResponseDto);
         responseResource.add(linkTo(PostController.class).withSelfRel());
@@ -81,7 +92,14 @@ public class PostController {
     public ResponseEntity getPost(@PathVariable Long postId) {
         Post post = postService.getPost(postId);
 
-        PostResponseDto postResponseDto = new PostResponseDto(post);
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .id(post.getId())
+                .category(post.getCategory())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .numHeart(post.getNumHeart())
+                .build();
 
         ResponseResource responseResource = new ResponseResource(postResponseDto);
         responseResource.add(linkTo(PostController.class).withSelfRel());
@@ -99,10 +117,18 @@ public class PostController {
     @PutMapping("/post/{postId}")
     public ResponseEntity updatePost(@PathVariable Long postId,
                                      @RequestPart(value = "data") @Valid PostRequestDto postRequestDto,
-                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image) throws IOException {
-        Post post = postService.updatePost(postId, postRequestDto, image);
+                                     @RequestPart(value = "image" ,required = false) @Valid MultipartFile image,
+                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        Post post = postService.updatePost(postId, postRequestDto, image, userDetails.getMember());
 
-        PostResponseDto postResponseDto = new PostResponseDto(post);
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .id(post.getId())
+                .category(post.getCategory())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .numHeart(post.getNumHeart())
+                .build();
 
         ResponseResource responseResource = new ResponseResource(postResponseDto);
         responseResource.add(linkTo(PostController.class).withSelfRel());
@@ -118,8 +144,9 @@ public class PostController {
      * @return
      */
     @DeleteMapping( "/post/{postId}")
-    public ResponseEntity deletePost(@PathVariable Long postId) throws IOException {
-        postService.postDelete(postId);
+    public ResponseEntity deletePost(@PathVariable Long postId,
+                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        postService.postDelete(postId, userDetails.getMember());
         ResponseResource responseResource = new ResponseResource(null);
         responseResource.add(linkTo(PostController.class).withSelfRel());
 

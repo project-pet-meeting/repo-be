@@ -8,14 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import sideproject.petmeeting.common.exception.BusinessException;
 import sideproject.petmeeting.common.exception.ErrorCode;
-import sideproject.petmeeting.post.domain.Post;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Slf4j
@@ -29,16 +28,24 @@ public class S3Uploader {
 
     /**
      * 이미지 파일 저장
-     * @param image
-     * @param imagePath
-     * @return
-     * @throws IOException
+     * @param image : 저정할 이미지
+     * @param imagePath : 저장 경로
+     * @return : S3 업로드 된 파일  URL 주소 반환
+     * @throws IOException : 예외 처리
      */
     public String upload(MultipartFile image, String imagePath) throws IOException{
-        validateFileExists(image);
+        if (validateFileExist(image)) {
+            throw new BusinessException("파일이 존재하지 않습니다.", ErrorCode.FILE_NOT_EXIST);
+        }
+
+
+        if(!validateFileType(Objects.requireNonNull(image.getOriginalFilename()))) {
+            throw new BusinessException("지원하지 않은 파일 유형입니다.", ErrorCode.INVALID_FILE_TYPE);
+        }
 
         File uploadFile = convert(image).orElseThrow(
-                () -> new IllegalArgumentException("MultipartFile -> File 변환 실패"));
+                () -> new BusinessException("MultipartFile -> File 변환 실패", ErrorCode.FILE_CONVERT_FAIL));
+
 
         String fileName = imagePath + "/" + UUID.randomUUID() + uploadFile.getName();
 
@@ -46,27 +53,32 @@ public class S3Uploader {
 
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
 
-        return uploadImageUrl;      // 업로드 된 파일 S3 URL 주소 반환
+        return uploadImageUrl;
 
     }
 
+    private boolean validateFileExist(MultipartFile image) {
+        return image.isEmpty();
+    }
 
-    private void validateFileExists(MultipartFile image) {
-        if (image.isEmpty()) {
-            throw new BusinessException("파일이 존재하지 않습니다.", ErrorCode.FILE_NOT_EXIST);
-        }
+    private boolean validateFileType(String getName) {
+        String fileType = getName.substring(getName.lastIndexOf(".")+1).toLowerCase();
+        return fileType.equals("png")
+                || fileType.equals("bmp")
+                || fileType.equals("jpg")
+                || fileType.equals("jpeg");
     }
 
 
     /**
      * MultipartFile -> File 전환
      * 전환 시 로컬에 파일 생성됨
-     * @param image
-     * @return
-     * @throws IOException
+     * @param image : File 전환 할 MultipartFile
+     * @return : File
+     * @throws IOException : 예외 처리
      */
     private Optional<File> convert(MultipartFile image) throws IOException {
-        File convertFile = new File(image.getOriginalFilename());
+        File convertFile = new File(Objects.requireNonNull(image.getOriginalFilename()));
         // 지정된 경로에 파일 생성
         if (convertFile.createNewFile()) {
             try (FileOutputStream fos = new FileOutputStream(convertFile)) {
@@ -80,9 +92,9 @@ public class S3Uploader {
 
     /**
      * S3로 업로드
-     * @param uploadFile
-     * @param fileName
-     * @return
+     * @param uploadFile : 업로드 할 파일
+     * @param fileName : 파일명
+     * @return : 업로드 된 이미지 URL
      */
     private String putS3(File uploadFile, String fileName) {
         amazonS3Client.putObject(
@@ -95,7 +107,7 @@ public class S3Uploader {
 
     /**
      * MultipartFile -> File 전환하면서 생성된 로컬에 저장된 파일 삭제
-     * @param targetFile
+     * @param targetFile : File 전환하면서 생성된 로컬에 저장된 파일
      */
     private void removeNewFile(File targetFile) {
         if(targetFile.delete()) {
@@ -107,11 +119,10 @@ public class S3Uploader {
 
     /**
      * 이미지 파일 삭제
-     * @param fileName
-     * @throws UnsupportedEncodingException
+     * @param fileName : 삭제 할 파일명
      */
-    public void deleteImage(String fileName) throws UnsupportedEncodingException {
-        fileName = URLDecoder.decode(fileName,"UTF-8"); //한글 인코딩
+    public void deleteImage(String fileName)  {
+        fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8); //한글 인코딩
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 
