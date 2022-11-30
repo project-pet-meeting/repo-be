@@ -31,6 +31,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Email 인증
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.5'
     compileOnly 'org.projectlombok:lombok'
     // JWT
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
