@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import sideproject.petmeeting.common.ImageFile;
 import sideproject.petmeeting.common.Timestamped;
 import sideproject.petmeeting.member.domain.Member;
 import sideproject.petmeeting.post.dto.PostRequestDto;
@@ -13,9 +12,6 @@ import sideproject.petmeeting.post.dto.PostRequestDto;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Getter
