@@ -13,6 +13,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import static javax.persistence.EnumType.STRING;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.*;
+
 
 @Getter
 @NoArgsConstructor
@@ -22,10 +26,10 @@ import javax.validation.constraints.Size;
 public class Post extends Timestamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = STRING)
     private Category category;
 
     @NotEmpty
@@ -42,7 +46,7 @@ public class Post extends Timestamped {
     private Integer numHeart;
 
     @JoinColumn(nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = LAZY)
     private Member member;
 //
 //    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
