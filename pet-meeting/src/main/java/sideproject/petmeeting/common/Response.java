@@ -1,10 +1,12 @@
 package sideproject.petmeeting.common;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class Response {
 
     private StatusEnum status;

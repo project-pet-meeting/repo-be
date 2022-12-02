@@ -10,14 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import sideproject.petmeeting.common.exception.BusinessException;
 import sideproject.petmeeting.common.exception.ErrorCode;
 import sideproject.petmeeting.common.S3Uploader;
+import sideproject.petmeeting.member.domain.Member;
 import sideproject.petmeeting.post.Repository.PostRepository;
 import sideproject.petmeeting.post.domain.Post;
 import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -31,12 +30,19 @@ public class PostService {
      * @param postRequestDto : 게시글 작성에 필요한 값
      */
     @Transactional
-    public Post createPost(PostRequestDto postRequestDto, MultipartFile image) throws IOException {
-        String imageUrl = s3Uploader.upload(image, "/post/imgae");
-        Post post = new Post(postRequestDto, imageUrl);
-        postRepository.save(post);
+    public Post createPost(PostRequestDto postRequestDto, MultipartFile image, Member member) throws IOException {
+        String imageUrl = s3Uploader.upload(image, "/post/image");
 
-        return post;
+        Post post = Post.builder()
+                .category(postRequestDto.getCategory())
+                .title(postRequestDto.getTitle())
+                .content(postRequestDto.getContent())
+                .imageUrl(imageUrl)
+                .member(member)
+                .build();
+
+        return postRepository.save(post);
+
     }
 
 
@@ -68,24 +74,25 @@ public class PostService {
      * 게시글 수정
      * @param postId : 수정할 게시글 id
      * @param postRequestDto : 수정할 게시글
-     * @param image
+     * @param image : 수정할 이미지 파일
      * @return
      * @throws IOException
      */
     @Transactional
-    public Post updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile image) throws IOException {
+    public Post updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile image, Member member) throws IOException {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new BusinessException("존재하지 않는 게시글 id 입니다.", ErrorCode.POST_NOT_EXIST)
         );
 
+        if (!post.getMember().getId().equals(member.getId())) {
+            throw new BusinessException("수정 권한이 없습니다.", ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+
         String imageUrl = post.getImageUrl();
-        String postImage = "";
-        List<String> imgPaths = null;
 
         // 이미지 존재 시 삭제 후 업로드
         if (imageUrl != null) {
-            String deleteUrl = imageUrl.substring(imageUrl.indexOf("post/image"));
-            s3Uploader.deleteImage(deleteUrl);
+            s3Uploader.deleteImage(imageUrl);
         }
 
         imageUrl = s3Uploader.upload(image, "/post/image");
@@ -102,29 +109,23 @@ public class PostService {
      * @throws IOException : 삭제할 게시글의 image 파일명 인코딩 예외 처리, UnsupportedEncodingException
      */
     @Transactional
-    public void postDelete(Long postId) throws IOException{
+    public void postDelete(Long postId, Member member) throws IOException{
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new BusinessException("존재하지 않는 게시글 id 입니다.", ErrorCode.POST_NOT_EXIST)
         );
 
+        if (!post.getMember().getId().equals(member.getId())) {
+            throw new BusinessException("삭제 권한이 없습니다.", ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+
         String imageUrl = post.getImageUrl();
+
         if (imageUrl != null) {
-            String deleteUrl = imageUrl.substring(imageUrl.indexOf("post/image"));
-            s3Uploader.deleteImage(deleteUrl);
+            s3Uploader.deleteImage(imageUrl);
         }
 
         postRepository.deleteById(postId);
 
-
-   }
-
-
-
-
-
-
-
-
-
+    }
 
 }

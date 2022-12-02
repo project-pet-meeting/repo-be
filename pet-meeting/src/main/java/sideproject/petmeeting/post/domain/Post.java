@@ -6,14 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import sideproject.petmeeting.common.Timestamped;
+import sideproject.petmeeting.member.domain.Member;
 import sideproject.petmeeting.post.dto.PostRequestDto;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+
+import static javax.persistence.EnumType.STRING;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.*;
+
 
 @Getter
 @NoArgsConstructor
@@ -23,11 +26,11 @@ import javax.validation.constraints.Size;
 public class Post extends Timestamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @NotEmpty
-    private String category;
+    @Enumerated(value = STRING)
+    private Category category;
 
     @NotEmpty
     private String title;
@@ -36,23 +39,18 @@ public class Post extends Timestamped {
     private String content;
 
     @NotEmpty
-    @Size(min = 2, max = 500)
+    @Size(max = 2000)
     private String imageUrl;
 
     @ColumnDefault("0")
     private Integer numHeart;
 
-    /**
-     *
-     * @param postRequestDto
-     * @param imageUrl
-     */
-    public Post(PostRequestDto postRequestDto, String imageUrl) {
-        this.category = postRequestDto.getCategory();
-        this.title = postRequestDto.getTitle();
-        this.content = postRequestDto.getContent();
-        this.imageUrl = imageUrl;
-    }
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = LAZY)
+    private Member member;
+//
+//    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+//    private List<ImageFile> photo = new ArrayList<>();
 
 
     /**
