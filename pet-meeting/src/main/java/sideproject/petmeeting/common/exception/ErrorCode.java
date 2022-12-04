@@ -24,7 +24,10 @@ public enum ErrorCode {
     FILE_CONVERT_FAIL(400, "FILE_CONVERT_FAIL","MultipartFile -> File 변환 실패" ),
 
     // == Post ==//
-    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다.");
+    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다."),
+    ALREADY_HEARTED(409, "ALREADY_HEARTED", "이미 좋아요를 누른 게시글 입니다."),
+    HEART_NOT_FOUND(404, "HEART_NOT_FOUND", "좋아요를 누르지 않은 게시글 입니다.");
+
 
     private final int status;
     private final String code;

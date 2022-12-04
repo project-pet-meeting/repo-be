@@ -78,9 +78,15 @@ public class PostController {
      * @return
      */
     @GetMapping("/post")
-    public Page<PostResponseDto> getAllPost() {
-        Pageable pageRequest = PageRequest.of(0, 15, Sort.by("id").descending());
-        return postService.getAllPost(pageRequest);
+    public ResponseEntity getAllPost(@RequestParam("page") int page) {
+        Page<Post> post = postService.getAllPost(page);
+
+        ResponseResource responseResource = new ResponseResource(post);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+
+        Response response = new Response(StatusEnum.OK, "게시글 조회 성공", responseResource);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -147,6 +153,7 @@ public class PostController {
     public ResponseEntity deletePost(@PathVariable Long postId,
                                      @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         postService.postDelete(postId, userDetails.getMember());
+
         ResponseResource responseResource = new ResponseResource(null);
         responseResource.add(linkTo(PostController.class).withSelfRel());
 
@@ -154,6 +161,38 @@ public class PostController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+    //코스(게시글) 찜하기
+    @PostMapping("/post/heart/{postId}")
+    public ResponseEntity addPostHeart(@PathVariable Long postId,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postService.addPostHeart(postId, userDetails.getMember());
+
+        ResponseResource responseResource = new ResponseResource(null);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+        responseResource.add(linkTo(PostController.class).slash("heart").slash(postId).withRel("heart-delete"));
+
+        Response response = new Response(StatusEnum.OK, "좋아요 성공", responseResource);
+
+        return  new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // 코스(게시글) 찜하기 취소
+    @DeleteMapping( "/post/heart/{postId}")
+    public ResponseEntity deletePostHeart(@PathVariable Long postId,
+                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postService.deletePostHeart(postId, userDetails.getMember());
+
+        ResponseResource responseResource = new ResponseResource(null);
+        responseResource.add(linkTo(PostController.class).withSelfRel());
+        responseResource.add(linkTo(PostController.class).slash("heart").slash(postId).withRel("heart-post"));
+
+        Response response = new Response(StatusEnum.OK, "좋아요 취소 성공", responseResource);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 
 }

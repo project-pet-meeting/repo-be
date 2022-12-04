@@ -3,7 +3,9 @@ package sideproject.petmeeting.post.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,18 +13,22 @@ import sideproject.petmeeting.common.exception.BusinessException;
 import sideproject.petmeeting.common.exception.ErrorCode;
 import sideproject.petmeeting.common.S3Uploader;
 import sideproject.petmeeting.member.domain.Member;
+import sideproject.petmeeting.post.Repository.HeartPostRepository;
 import sideproject.petmeeting.post.Repository.PostRepository;
+import sideproject.petmeeting.post.domain.HeartPost;
 import sideproject.petmeeting.post.domain.Post;
 import sideproject.petmeeting.post.dto.PostRequestDto;
 import sideproject.petmeeting.post.dto.PostResponseDto;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
 @Service
 public class PostService {
     private final PostRepository postRepository;
+    private final HeartPostRepository heartPostRepository;
     private final S3Uploader s3Uploader;
 
     /**
@@ -48,14 +54,17 @@ public class PostService {
 
     /**
      * 게시글 전체 조회
-     * @param pageable :
+     * @param page
      * @return
      */
     @Transactional(readOnly = true)
-    public Page<PostResponseDto> getAllPost(Pageable pageable) {
-        return postRepository.findAllByOrderByModifiedAtDesc(pageable);
+    public Page<Post> getAllPost(int page) {
+        Pageable pageRequest = PageRequest.of(page, 15, Sort.by("modifiedAt").descending());
+
+        return postRepository.findAll(pageRequest);
 
     }
+
 
     /**
      * 게시글 단건 조회
@@ -69,6 +78,7 @@ public class PostService {
         );
         return post;
     }
+
 
     /**
      * 게시글 수정
@@ -102,7 +112,6 @@ public class PostService {
     }
 
 
-
     /**
      * 게시글 삭제
      * @param postId : 삭제할 게시글 id
@@ -126,6 +135,57 @@ public class PostService {
 
         postRepository.deleteById(postId);
 
+    }
+
+
+    /**
+     * 게시글 좋아요
+     * @param postId : '좋아요' 할 게시글 id
+     * @param member : 게시글에 '좋아요'를 한 사용자
+     */
+    @Transactional
+    public void addPostHeart(Long postId, Member member) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException("존재하지 않는 게시글 id 입니다.", ErrorCode.POST_NOT_EXIST)
+        );
+
+        if (heartPostRepository.findByPostAndMember(post, member).isPresent()) {
+            throw new BusinessException("이미 '좋아요'한 게시글입니다.", ErrorCode.ALREADY_HEARTED);
+        }
+
+        HeartPost heartPost = HeartPost.builder()
+                .post(post)
+                .member(member)
+                .build();
+
+        heartPostRepository.save(heartPost);
+
+        Integer countHeart = heartPostRepository.findCountHeart(postId);
+
+        post.addCountHeart(countHeart);
+    }
+
+
+    /**
+     * 게시글 좋아요 취소
+     * @param postId : '좋아요' 취소 할 게시글 id
+     * @param member : 게시글에 '좋아요' 취소를 한 사용자
+     */
+    @Transactional
+    public void deletePostHeart(Long postId, Member member) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException("존재하지 않는 게시글 id 입니다.", ErrorCode.POST_NOT_EXIST)
+        );
+
+        Optional<HeartPost> heartOptional = heartPostRepository.findByPostAndMember(post, member);
+        if (heartOptional.isEmpty()) {
+            throw new BusinessException("'좋아요' 하지 않은 게시글입니다.", ErrorCode.HEART_NOT_FOUND);
+        }
+
+        heartPostRepository.delete(heartOptional.get());
+        int countHeart = heartPostRepository.findCountHeart(postId);
+
+        post.addCountHeart(countHeart);
     }
 
 }

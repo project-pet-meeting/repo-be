@@ -1,5 +1,6 @@
 package sideproject.petmeeting.post.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,6 +46,7 @@ public class Post extends Timestamped {
     @ColumnDefault("0")
     private Integer numHeart;
 
+    @JsonIgnore
     @JoinColumn(nullable = false)
     @ManyToOne(fetch = LAZY)
     private Member member;
@@ -69,7 +71,7 @@ public class Post extends Timestamped {
      * 좋아요 합계 저장
      * @param numHeart
      */
-    public void addNumHeart(Integer numHeart) {
+    public void addCountHeart(Integer numHeart) {
         this.numHeart = numHeart;
     }
 
