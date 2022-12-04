@@ -1,11 +1,31 @@
 package sideproject.petmeeting.meeting.domain;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.validation.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
+import sideproject.petmeeting.common.Timestamped;
+import sideproject.petmeeting.meeting.dto.MeetingRequestDto;
+import sideproject.petmeeting.member.domain.Member;
 
-public class Meeting {
+import javax.persistence.*;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import java.time.LocalDateTime;
+
+import static javax.persistence.FetchType.LAZY;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+public class Meeting extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,25 +35,50 @@ public class Meeting {
     private String title;
 
     @NotEmpty
+    private String content;
+
+    private String imageUrl;
+
+    @NotEmpty
     private String address;
 
     @NotEmpty
     private String coordinateX;
 
     @NotEmpty
-    private String coodinateY;
+    private String coordinateY;
 
     @NotEmpty
     private String placeName;
 
-    @NotEmpty
-    private String time;
+    @FutureOrPresent
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime time;
 
-    @NotEmpty
-    private Integer recruitNum;
+    @NotNull
+    private int recruitNum;
 
     @NotEmpty
     private String species;
+
+    @JsonIgnore
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = LAZY)
+    private Member member;
+
+
+    public void update(MeetingRequestDto meetingRequestDto, String imageUrl) {
+        this.title = meetingRequestDto.getTitle();
+        this.content = meetingRequestDto.getContent();
+        this.imageUrl = imageUrl;
+        this.address = meetingRequestDto.getAddress();
+        this.coordinateX = meetingRequestDto.getCoordinateX();
+        this.coordinateY = meetingRequestDto.getCoordinateY();
+        this.placeName = meetingRequestDto.getPlaceName();
+        this.time = meetingRequestDto.getTime();
+        this.recruitNum = meetingRequestDto.getRecruitNum();
+        this.species = meetingRequestDto.getSpecies();
+    }
 
 
 }

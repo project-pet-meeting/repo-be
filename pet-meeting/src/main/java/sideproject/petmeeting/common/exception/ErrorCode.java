@@ -24,7 +24,10 @@ public enum ErrorCode {
     FILE_CONVERT_FAIL(400, "FILE_CONVERT_FAIL","MultipartFile -> File 변환 실패" ),
 
     // == Post ==//
-    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다.");
+    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다."),
+
+    // == Meeting ==//
+    MEETING_NOT_EXIST(404, "MEETING_NOT_EXIST", "모임이 존재하지 않습니다.");
 
     private final int status;
     private final String code;
