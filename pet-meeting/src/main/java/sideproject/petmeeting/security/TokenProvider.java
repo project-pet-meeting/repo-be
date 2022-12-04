@@ -106,9 +106,7 @@ public class TokenProvider {
 
     public String getUserEmailByToken(String accessToken) {
         String token;
-        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
-            token = accessToken.substring(7);
-        } else {
+        if (!StringUtils.hasText(accessToken) && !accessToken.startsWith("Bearer ")) {
             return null;
         }
         Claims claims;
@@ -117,7 +115,7 @@ public class TokenProvider {
                     .parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(token)
+                    .parseClaimsJws(accessToken)
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.info("만료된 Token 입니다.");

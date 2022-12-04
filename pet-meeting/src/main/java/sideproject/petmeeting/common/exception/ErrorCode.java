@@ -24,7 +24,14 @@ public enum ErrorCode {
     FILE_CONVERT_FAIL(400, "FILE_CONVERT_FAIL","MultipartFile -> File 변환 실패" ),
 
     // == Post ==//
-    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다.");
+    POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다."),
+
+    // == Token == //
+    NEED_LOGIN(401, "NEED_LOGIN", "로그인이 필요합니다."),
+    INVALID_TOKEN(404, "INVALID_TOKEN", "올바르지 않은 토큰입니다."),
+
+
+    ;
 
     private final int status;
     private final String code;
