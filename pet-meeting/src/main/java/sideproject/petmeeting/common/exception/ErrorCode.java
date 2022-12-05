@@ -26,7 +26,16 @@ public enum ErrorCode {
     // == Post ==//
     POST_NOT_EXIST(404, "POST_NOT_EXIST", "게시글이 존재하지 않습니다."),
     ALREADY_HEARTED(409, "ALREADY_HEARTED", "이미 좋아요를 누른 게시글 입니다."),
-    HEART_NOT_FOUND(404, "HEART_NOT_FOUND", "좋아요를 누르지 않은 게시글 입니다.");
+    HEART_NOT_FOUND(404, "HEART_NOT_FOUND", "좋아요를 누르지 않은 게시글 입니다."),
+
+    // == Meeting ==//
+    MEETING_NOT_EXIST(404, "MEETING_NOT_EXIST", "모임이 존재하지 않습니다."),
+    
+    // == Token == //
+    NEED_LOGIN(401, "NEED_LOGIN", "로그인이 필요합니다."),
+    INVALID_TOKEN(404, "INVALID_TOKEN", "올바르지 않은 토큰입니다.")
+    
+    ;
 
 
     private final int status;
