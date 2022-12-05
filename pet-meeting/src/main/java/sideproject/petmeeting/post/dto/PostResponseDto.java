@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import sideproject.petmeeting.post.domain.Category;
+import sideproject.petmeeting.post.domain.Post;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -19,5 +22,10 @@ public class PostResponseDto {
     private String imageUrl;
     @ColumnDefault("0")
     private Integer numHeart;
+    private Long authorId;
+    private String authorNickname;
+    private String authorImageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
 }
