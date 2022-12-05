@@ -24,7 +24,9 @@ public class MeetingResponseDto {
     private LocalDateTime time;
     private int recruitNum;
     private String species;
-    private Long memberId;
-    private String username;
-    private String memberImageUrl;
+    private Long authorId;
+    private String authorNickname;
+    private String authorImageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }

@@ -15,6 +15,7 @@ import javax.persistence.*;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
@@ -37,6 +38,7 @@ public class Meeting extends Timestamped {
     @NotEmpty
     private String content;
 
+    @Size(max = 2000)
     private String imageUrl;
 
     @NotEmpty
